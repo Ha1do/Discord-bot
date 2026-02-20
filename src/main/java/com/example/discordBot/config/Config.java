@@ -34,6 +34,21 @@ public class Config
 
     public static String getBotToken()
     {
-        return properties.getProperty("botToken");
+        // 1️⃣ Сначала ENV (Railway)
+        String envToken = System.getenv("BOT_TOKEN");
+        if (envToken != null && !envToken.isBlank()) {
+            logger.info("Using BOT_TOKEN from environment variable");
+            return envToken;
+        }
+
+        // 2️⃣ Потом файл (локалка)
+        String fileToken = properties.getProperty("botToken");
+        if (fileToken != null && !fileToken.isBlank()) {
+            logger.info("Using botToken from config file");
+            return fileToken;
+        }
+
+        // 3️⃣ Если вообще ничего нет — падаем
+        throw new IllegalStateException("Bot token not found in ENV or config file");
     }
 }
