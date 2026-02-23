@@ -16,6 +16,14 @@
                 <slf4j.version>2.0.16</slf4j.version>
                 <logback.version>1.5.16</logback.version>
         </properties>
+
+        <repositories>
+                <repository>
+                        <id>jitpack</id>
+                        <url>https://jitpack.io</url>
+                </repository>
+        </repositories>
+
         <dependencies>
                 <dependency>
                         <groupId>net.dv8tion</groupId>
@@ -32,6 +40,12 @@
                         <groupId>ch.qos.logback</groupId>
                         <artifactId>logback-classic</artifactId>
                         <version>${logback.version}</version>
+                </dependency>
+
+                <dependency>
+                        <groupId>dev.arbjerg</groupId>
+                        <artifactId>lavaplayer</artifactId>
+                        <version>2.2.6</version>
                 </dependency>
         </dependencies>
 

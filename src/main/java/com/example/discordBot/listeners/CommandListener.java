@@ -1,9 +1,6 @@
 package com.example.discordBot.listeners;
 
-import com.example.discordBot.commands.Command;
-import com.example.discordBot.commands.PingCommand;
-import com.example.discordBot.commands.EchoCommand;
-import com.example.discordBot.commands.InfoCommand;
+import com.example.discordBot.commands.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -24,6 +21,7 @@ public class CommandListener extends ListenerAdapter
         commands.put("ping", new PingCommand());
         commands.put("echo", new EchoCommand());
         commands.put("info", new InfoCommand());
+        commands.put("play", new PlayCommand());
         logger.info("Loaded commands: {}", commands.size());
     }
 

@@ -58,7 +58,9 @@ public class Main {
                 Commands.slash("ping", "Replies with Pong!"),
                 Commands.slash("echo", "Replies with your message!").
                         addOption(OptionType.STRING, "text", "Message to echo", true),
-                Commands.slash("info", "Replies with bot information!")
+                Commands.slash("info", "Replies with bot information!"),
+                Commands.slash("play", "Plays a song from YouTube!").
+                        addOption(OptionType.STRING, "url", "YouTube URL of the song to play", true)
         ).queue(success -> logger.info("Slash commands registered successfully!"), failure -> logger.error("Failed to register slash commands: ", failure));
     }
 }
