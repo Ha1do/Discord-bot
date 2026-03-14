@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["jdk25", "maven"]
-
-[start]
-cmd = "java -jar target/*.jar"
