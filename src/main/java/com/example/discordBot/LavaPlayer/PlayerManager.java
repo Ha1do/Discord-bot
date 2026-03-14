@@ -9,7 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,34 +42,35 @@ public class PlayerManager
         });
     }
 
-    public void play (Guild guild, String trackURL)
+    public void play(Guild guild, String trackURL, SlashCommandInteractionEvent event)
     {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
         audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler()
         {
-
             @Override
             public void trackLoaded(AudioTrack audioTrack)
             {
                 guildMusicManager.getScheduler().queue(audioTrack);
+                event.getHook().sendMessage("🎵 Queued: **" + audioTrack.getInfo().title + "**").queue();
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist)
             {
-
+                audioPlaylist.getTracks().forEach(track -> guildMusicManager.getScheduler().queue(track));
+                event.getHook().sendMessage("📋 Queued playlist: **" + audioPlaylist.getName() + "** with " + audioPlaylist.getTracks().size() + " tracks").queue();
             }
 
             @Override
             public void noMatches()
             {
-
+                event.getHook().sendMessage("❌ No matches found for: " + trackURL).queue();
             }
 
             @Override
             public void loadFailed(FriendlyException e)
             {
-
+                event.getHook().sendMessage("❌ Failed to load track: " + e.getMessage()).queue();
             }
         });
     }

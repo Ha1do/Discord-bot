@@ -24,7 +24,14 @@ public class PlayCommand implements Command
     @Override
     public void executeSlash(SlashCommandInteractionEvent event)
     {
-        OptionMapping URL = event.getOption("URL");
+        OptionMapping urlOption = event.getOption("url");
+
+        if (urlOption == null) {
+            event.reply("URL option is missing!").queue();
+            return;
+        }
+
+        String url = urlOption.getAsString();
 
         Member member = event.getMember();
         GuildVoiceState membervoiceState = member.getVoiceState();
@@ -49,9 +56,10 @@ public class PlayCommand implements Command
             }
         }
 
+        event.deferReply().queue();
+
         PlayerManager playerManager = PlayerManager.get();
-        event.reply("Playing " + URL.getAsString()).queue();
-        playerManager.play(event.getGuild(), event.getOption("URL").getAsString());
+        playerManager.play(event.getGuild(), url, event);
     }
 
 }
