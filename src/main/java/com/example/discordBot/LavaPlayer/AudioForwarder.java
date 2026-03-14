@@ -19,10 +19,10 @@ public class AudioForwarder implements AudioSendHandler
         frame.setBuffer(buffer);
     }
 
-
     @Override
     public boolean canProvide()
     {
+        buffer.clear();
         return player.provide(frame);
     }
 
