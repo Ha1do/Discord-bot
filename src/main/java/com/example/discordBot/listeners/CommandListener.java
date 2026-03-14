@@ -23,6 +23,7 @@ public class CommandListener extends ListenerAdapter
         commands.put("info", new InfoCommand());
         commands.put("play", new PlayCommand());
         commands.put("play1", new Play1Command());
+        commands.put("skip", new SkipCommand());
         logger.info("Loaded commands: {}", commands.size());
     }
 

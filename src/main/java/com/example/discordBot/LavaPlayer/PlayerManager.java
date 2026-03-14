@@ -16,6 +16,13 @@ import java.util.Map;
 
 public class PlayerManager
 {
+    public enum SkipResult
+    {
+        NOTHING_PLAYING,
+        SKIPPED_TO_NEXT,
+        STOPPED
+    }
+
     private static PlayerManager INSTANCE;
     private Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
     private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
@@ -73,5 +80,18 @@ public class PlayerManager
                 event.getHook().sendMessage("❌ Failed to load track: " + e.getMessage()).queue();
             }
         });
+    }
+
+    public SkipResult skip(Guild guild)
+    {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+
+        if (guildMusicManager.getScheduler().getPlayer().getPlayingTrack() == null)
+        {
+            return SkipResult.NOTHING_PLAYING;
+        }
+
+        AudioTrack nextTrack = guildMusicManager.getScheduler().skipCurrentTrack();
+        return nextTrack == null ? SkipResult.STOPPED : SkipResult.SKIPPED_TO_NEXT;
     }
 }
