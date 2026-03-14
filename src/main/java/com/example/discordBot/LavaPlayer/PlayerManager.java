@@ -7,7 +7,6 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -24,8 +23,9 @@ public class PlayerManager
     }
 
     private static PlayerManager INSTANCE;
-    private Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
-    private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
+
+    private final Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
+    private final AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
 
     private PlayerManager()
     {
@@ -35,24 +35,39 @@ public class PlayerManager
 
     public static PlayerManager get()
     {
-        if (INSTANCE == null) INSTANCE = new PlayerManager();
+        if (INSTANCE == null)
+        {
+            INSTANCE = new PlayerManager();
+        }
         return INSTANCE;
     }
 
     public GuildMusicManager getGuildMusicManager(Guild guild)
     {
-        return guildMusicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
+        return guildMusicManagers.computeIfAbsent(guild.getIdLong(), guildId -> {
             GuildMusicManager musicManager = new GuildMusicManager(audioPlayerManager);
-
             guild.getAudioManager().setSendingHandler(musicManager.getAudioForwarder());
             return musicManager;
         });
     }
 
-    public void play(Guild guild, String trackURL, SlashCommandInteractionEvent event)
+    public void play(Guild guild, String trackQuery, SlashCommandInteractionEvent event)
     {
+        if (guild == null)
+        {
+            event.getHook().sendMessage("❌ Guild is null.").queue();
+            return;
+        }
+
+        if (trackQuery == null || trackQuery.isBlank())
+        {
+            event.getHook().sendMessage("❌ Track query is empty.").queue();
+            return;
+        }
+
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
-        audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler()
+
+        audioPlayerManager.loadItemOrdered(guildMusicManager, trackQuery, new AudioLoadResultHandler()
         {
             @Override
             public void trackLoaded(AudioTrack audioTrack)
@@ -64,14 +79,31 @@ public class PlayerManager
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist)
             {
-                audioPlaylist.getTracks().forEach(track -> guildMusicManager.getScheduler().queue(track));
-                event.getHook().sendMessage("📋 Queued playlist: **" + audioPlaylist.getName() + "** with " + audioPlaylist.getTracks().size() + " tracks").queue();
+                if (audioPlaylist.getTracks().isEmpty())
+                {
+                    event.getHook().sendMessage("❌ Playlist is empty.").queue();
+                    return;
+                }
+
+                if (trackQuery.startsWith("ytsearch:"))
+                {
+                    AudioTrack firstTrack = audioPlaylist.getTracks().get(0);
+                    guildMusicManager.getScheduler().queue(firstTrack);
+                    event.getHook().sendMessage("🎵 Queued from search: **" + firstTrack.getInfo().title + "**").queue();
+                    return;
+                }
+
+                audioPlaylist.getTracks().forEach(guildMusicManager.getScheduler()::queue);
+
+                event.getHook().sendMessage(
+                        "📋 Queued playlist: **" + audioPlaylist.getName() + "** with " + audioPlaylist.getTracks().size() + " tracks"
+                ).queue();
             }
 
             @Override
             public void noMatches()
             {
-                event.getHook().sendMessage("❌ No matches found for: " + trackURL).queue();
+                event.getHook().sendMessage("❌ No matches found for: " + trackQuery).queue();
             }
 
             @Override
