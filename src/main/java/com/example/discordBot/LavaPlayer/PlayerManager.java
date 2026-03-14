@@ -8,12 +8,11 @@ import com.example.discordBot.audio.player.SourcePlayer;
 import com.example.discordBot.audio.player.YouTubeSourcePlayer;
 import com.example.discordBot.config.Config;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.Android;
-import dev.lavalink.youtube.clients.AndroidMusic;
 import dev.lavalink.youtube.clients.AndroidVr;
-import dev.lavalink.youtube.clients.Ios;
-import dev.lavalink.youtube.clients.MWeb;
 import dev.lavalink.youtube.clients.Music;
+import dev.lavalink.youtube.clients.TvHtml5Simply;
+import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.WebEmbedded;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -44,12 +43,11 @@ public class PlayerManager
     private final AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
     private final Map<SourceType, SourcePlayer> sourcePlayers = new EnumMap<>(SourceType.class);
     private final YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(
-            new Music(),
-            new AndroidMusic(),
-            new MWeb(),
-            new Ios(),
-            new Android(),
-            new AndroidVr()
+            new Music(),       // YouTube Music content
+            new Web(),         // standard YouTube, most reliable
+            new WebEmbedded(), // embedded player fallback
+            new TvHtml5Simply(), // TV client, fewer bot restrictions
+            new AndroidVr()    // last resort
     );
 
     private PlayerManager()
