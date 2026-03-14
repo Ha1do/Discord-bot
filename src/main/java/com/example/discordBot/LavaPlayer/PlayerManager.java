@@ -6,6 +6,12 @@ import com.example.discordBot.audio.player.SearchSourcePlayer;
 import com.example.discordBot.audio.player.SoundCloudSourcePlayer;
 import com.example.discordBot.audio.player.SourcePlayer;
 import com.example.discordBot.audio.player.YouTubeSourcePlayer;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.clients.Android;
+import dev.lavalink.youtube.clients.Music;
+import dev.lavalink.youtube.clients.TvHtml5Simply;
+import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.WebEmbedded;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -31,9 +37,17 @@ public class PlayerManager
     private final Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
     private final AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
     private final Map<SourceType, SourcePlayer> sourcePlayers = new EnumMap<>(SourceType.class);
+    private final YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(
+            new Music(),
+            new Web(),
+            new WebEmbedded(),
+            new Android(),
+            new TvHtml5Simply()
+    );
 
     private PlayerManager()
     {
+        audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         registerSourcePlayers();
