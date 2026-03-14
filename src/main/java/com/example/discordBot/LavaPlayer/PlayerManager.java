@@ -11,7 +11,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlayerManager
@@ -52,8 +56,9 @@ public class PlayerManager
 
     public void play(Guild guild, String trackURL, SlashCommandInteractionEvent event)
     {
+        String normalizedTrackUrl = normalizeYoutubeMixUrl(trackURL);
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
-        audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler()
+        audioPlayerManager.loadItemOrdered(guildMusicManager, normalizedTrackUrl, new AudioLoadResultHandler()
         {
             @Override
             public void trackLoaded(AudioTrack audioTrack)
@@ -72,7 +77,7 @@ public class PlayerManager
             @Override
             public void noMatches()
             {
-                event.getHook().sendMessage("❌ No matches found for: " + trackURL).queue();
+                event.getHook().sendMessage("❌ No matches found for: " + normalizedTrackUrl).queue();
             }
 
             @Override
@@ -81,6 +86,68 @@ public class PlayerManager
                 event.getHook().sendMessage("❌ Failed to load track: " + e.getMessage()).queue();
             }
         });
+    }
+
+    private String normalizeYoutubeMixUrl(String url)
+    {
+        if (url == null)
+        {
+            return null;
+        }
+
+        String trimmedUrl = url.trim();
+        if (!(trimmedUrl.contains("youtube.com") || trimmedUrl.contains("youtu.be")))
+        {
+            return trimmedUrl;
+        }
+
+        int queryStart = trimmedUrl.indexOf('?');
+        if (queryStart < 0 || queryStart == trimmedUrl.length() - 1)
+        {
+            return trimmedUrl;
+        }
+
+        String base = trimmedUrl.substring(0, queryStart);
+        String query = trimmedUrl.substring(queryStart + 1);
+
+        String mixListValue = null;
+        List<String> keptParams = new ArrayList<>();
+
+        for (String param : query.split("&"))
+        {
+            if (param.isBlank())
+            {
+                continue;
+            }
+
+            int separator = param.indexOf('=');
+            String key = separator >= 0 ? param.substring(0, separator) : param;
+            String value = separator >= 0 ? param.substring(separator + 1) : "";
+
+            if ("list".equals(key))
+            {
+                String decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                if (decodedValue.startsWith("RD"))
+                {
+                    mixListValue = decodedValue;
+                    continue;
+                }
+            }
+
+            keptParams.add(param);
+        }
+
+        if (mixListValue == null)
+        {
+            return trimmedUrl;
+        }
+
+        if (keptParams.isEmpty())
+        {
+            return base;
+        }
+
+        return base + "?" + String.join("&", keptParams);
     }
 
     public SkipResult skip(Guild guild)
