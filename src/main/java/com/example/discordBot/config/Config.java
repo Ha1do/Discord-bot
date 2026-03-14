@@ -52,6 +52,25 @@ public class Config
         throw new IllegalStateException("Bot token not found in ENV or config file");
     }
 
+    public static String getYoutubeRefreshToken()
+    {
+        String envToken = System.getenv("YOUTUBE_REFRESH_TOKEN");
+        if (envToken != null && !envToken.isBlank())
+        {
+            logger.info("Using YOUTUBE_REFRESH_TOKEN from environment variable");
+            return envToken;
+        }
+
+        String fileToken = properties.getProperty("youtubeRefreshToken");
+        if (fileToken != null && !fileToken.isBlank())
+        {
+            logger.info("Using youtubeRefreshToken from config file");
+            return fileToken;
+        }
+
+        return null;
+    }
+
     public static String getOptionalValue(String envName, String propertyName)
     {
         String envValue = System.getenv(envName);

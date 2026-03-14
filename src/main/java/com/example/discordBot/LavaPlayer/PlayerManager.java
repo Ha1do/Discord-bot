@@ -55,7 +55,7 @@ public class PlayerManager
     private PlayerManager()
     {
         String youtubeRefreshToken = normalizeRefreshToken(
-                Config.getOptionalValue("YOUTUBE_REFRESH_TOKEN", "youtubeRefreshToken")
+                Config.getYoutubeRefreshToken()
         );
 
         if (youtubeRefreshToken != null)
