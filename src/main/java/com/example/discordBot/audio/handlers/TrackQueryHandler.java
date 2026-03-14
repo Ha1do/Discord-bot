@@ -1,6 +1,9 @@
 package com.example.discordBot.audio.handlers;
 
+import com.example.discordBot.audio.ResolvedTrack;
+import com.example.discordBot.audio.SourceType;
+
 public interface TrackQueryHandler
 {
-    String resolveTrackQuery(String input);
+    ResolvedTrack resolveTrack(String input, SourceType sourceType);
 }

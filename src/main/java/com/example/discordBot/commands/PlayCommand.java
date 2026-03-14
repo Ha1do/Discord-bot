@@ -1,6 +1,7 @@
 package com.example.discordBot.commands;
 
 import com.example.discordBot.LavaPlayer.PlayerManager;
+import com.example.discordBot.audio.ResolvedTrack;
 import com.example.discordBot.audio.SourceResolver;
 import com.example.discordBot.audio.SourceType;
 import com.example.discordBot.audio.TrackQueryRouter;
@@ -46,7 +47,7 @@ public class PlayCommand implements Command
         }
 
         String input = urlOption.getAsString();
-        if (input == null || input.isBlank())
+        if (input.isBlank())
         {
             event.reply("❌ Please provide a link or search query.")
                     .setEphemeral(true)
@@ -55,9 +56,9 @@ public class PlayCommand implements Command
         }
 
         SourceType sourceType = SourceResolver.resolve(input);
-        String trackQuery = TrackQueryRouter.resolve(input, sourceType);
+        ResolvedTrack resolvedTrack = TrackQueryRouter.resolve(input, sourceType);
 
-        if (trackQuery == null)
+        if (resolvedTrack == null)
         {
             event.reply("❌ Unsupported link. Supported sources: YouTube, SoundCloud, Spotify, Apple Music, YouTube Music, or plain search text.")
                     .setEphemeral(true)
@@ -101,6 +102,6 @@ public class PlayCommand implements Command
         event.deferReply().queue();
 
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.play(guild, trackQuery, event);
+        playerManager.play(guild, resolvedTrack, event);
     }
 }

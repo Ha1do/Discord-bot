@@ -7,7 +7,7 @@ import com.example.discordBot.audio.handlers.YouTubeQueryHandler;
 
 public class TrackQueryRouter
 {
-    public static String resolve(String input, SourceType sourceType)
+    public static ResolvedTrack resolve(String input, SourceType sourceType)
     {
         TrackQueryHandler handler = switch (sourceType)
         {
@@ -22,6 +22,6 @@ public class TrackQueryRouter
             return null;
         }
 
-        return handler.resolveTrackQuery(input);
+        return handler.resolveTrack(input, sourceType);
     }
 }

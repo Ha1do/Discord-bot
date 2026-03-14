@@ -75,8 +75,6 @@ public class Main {
                 Commands.slash("info", "Replies with bot information!"),
                 Commands.slash("play", "Plays a song from YouTube!")
                         .addOption(OptionType.STRING, "url", "YouTube URL of the song to play", true),
-                Commands.slash("play1", "Plays a song from SoundCloud!")
-                        .addOption(OptionType.STRING, "url", "SoundCloud URL of the song to play", true),
                 Commands.slash("skip", "Skips the current track")
 
         ).queue(
