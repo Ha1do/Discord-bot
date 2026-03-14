@@ -6,12 +6,14 @@ import com.example.discordBot.audio.player.SearchSourcePlayer;
 import com.example.discordBot.audio.player.SoundCloudSourcePlayer;
 import com.example.discordBot.audio.player.SourcePlayer;
 import com.example.discordBot.audio.player.YouTubeSourcePlayer;
+import com.example.discordBot.config.Config;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.Android;
+import dev.lavalink.youtube.clients.AndroidMusic;
+import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.Ios;
+import dev.lavalink.youtube.clients.MWeb;
 import dev.lavalink.youtube.clients.Music;
-import dev.lavalink.youtube.clients.TvHtml5Simply;
-import dev.lavalink.youtube.clients.Web;
-import dev.lavalink.youtube.clients.WebEmbedded;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -39,14 +41,21 @@ public class PlayerManager
     private final Map<SourceType, SourcePlayer> sourcePlayers = new EnumMap<>(SourceType.class);
     private final YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(
             new Music(),
-            new Web(),
-            new WebEmbedded(),
+            new AndroidMusic(),
+            new MWeb(),
+            new Ios(),
             new Android(),
-            new TvHtml5Simply()
+            new AndroidVr()
     );
 
     private PlayerManager()
     {
+        String youtubeRefreshToken = Config.getOptionalValue("YOUTUBE_REFRESH_TOKEN", "youtubeRefreshToken");
+        if (youtubeRefreshToken != null)
+        {
+            youtubeAudioSourceManager.useOauth2(youtubeRefreshToken, true);
+        }
+
         audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);

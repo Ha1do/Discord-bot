@@ -51,4 +51,21 @@ public class Config
         // 3️⃣ Если вообще ничего нет — падаем
         throw new IllegalStateException("Bot token not found in ENV or config file");
     }
+
+    public static String getOptionalValue(String envName, String propertyName)
+    {
+        String envValue = System.getenv(envName);
+        if (envValue != null && !envValue.isBlank())
+        {
+            return envValue;
+        }
+
+        String propertyValue = properties.getProperty(propertyName);
+        if (propertyValue != null && !propertyValue.isBlank())
+        {
+            return propertyValue;
+        }
+
+        return null;
+    }
 }
