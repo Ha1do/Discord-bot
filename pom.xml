@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <modelVersion>4.0.0</modelVersion>
 
         <groupId>com.example</groupId>
@@ -10,19 +10,13 @@
 
         <properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <maven.compiler.source>21</maven.compiler.source>
-                <maven.compiler.target>21</maven.compiler.target>
-                <jda.version>5.3.0</jda.version>
+                <maven.compiler.release>25</maven.compiler.release>
+                <jda.version>6.3.1</jda.version>
                 <slf4j.version>2.0.16</slf4j.version>
                 <logback.version>1.5.16</logback.version>
+                <jdave.version>0.1.7</jdave.version>
+                <lavaplayer.version>2.2.6</lavaplayer.version>
         </properties>
-
-        <repositories>
-                <repository>
-                        <id>jitpack</id>
-                        <url>https://jitpack.io</url>
-                </repository>
-        </repositories>
 
         <dependencies>
                 <dependency>
@@ -36,6 +30,7 @@
                         <artifactId>slf4j-api</artifactId>
                         <version>${slf4j.version}</version>
                 </dependency>
+
                 <dependency>
                         <groupId>ch.qos.logback</groupId>
                         <artifactId>logback-classic</artifactId>
@@ -45,7 +40,21 @@
                 <dependency>
                         <groupId>dev.arbjerg</groupId>
                         <artifactId>lavaplayer</artifactId>
-                        <version>2.2.6</version>
+                        <version>${lavaplayer.version}</version>
+                </dependency>
+
+                <!-- JDAVE API -->
+                <dependency>
+                        <groupId>club.minnced</groupId>
+                        <artifactId>jdave-api</artifactId>
+                        <version>${jdave.version}</version>
+                </dependency>
+
+                <!-- linux x64 native -->
+                <dependency>
+                        <groupId>club.minnced</groupId>
+                        <artifactId>jdave-native-linux-x86-64</artifactId>
+                        <version>${jdave.version}</version>
                 </dependency>
         </dependencies>
 
@@ -54,12 +63,12 @@
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-compiler-plugin</artifactId>
-                                <version>3.11.0</version>
+                                <version>3.14.1</version>
                                 <configuration>
-                                        <source>21</source>
-                                        <target>21</target>
+                                        <release>25</release>
                                 </configuration>
                         </plugin>
+
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-assembly-plugin</artifactId>
@@ -72,6 +81,9 @@
                                                 <manifest>
                                                         <mainClass>com.example.discordBot.Main</mainClass>
                                                 </manifest>
+                                                <manifestEntries>
+                                                        <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                                                </manifestEntries>
                                         </archive>
                                 </configuration>
                                 <executions>
