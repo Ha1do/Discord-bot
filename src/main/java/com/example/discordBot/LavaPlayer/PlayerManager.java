@@ -20,6 +20,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ import java.util.Map;
 
 public class PlayerManager
 {
+    private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
+
     public enum SkipResult
     {
         NOTHING_PLAYING,
@@ -50,16 +54,61 @@ public class PlayerManager
 
     private PlayerManager()
     {
-        String youtubeRefreshToken = Config.getOptionalValue("YOUTUBE_REFRESH_TOKEN", "youtubeRefreshToken");
+        String youtubeRefreshToken = normalizeRefreshToken(
+                Config.getOptionalValue("YOUTUBE_REFRESH_TOKEN", "youtubeRefreshToken")
+        );
+
         if (youtubeRefreshToken != null)
         {
-            youtubeAudioSourceManager.useOauth2(youtubeRefreshToken, true);
+            try
+            {
+                // false = initialize token flow immediately, so config issues are visible at startup.
+                youtubeAudioSourceManager.useOauth2(youtubeRefreshToken, false);
+                logger.info("YouTube OAuth2 is enabled via refresh token.");
+            }
+            catch (Exception e)
+            {
+                logger.warn("Failed to initialize YouTube OAuth2 refresh token, continuing without OAuth2.", e);
+            }
+        }
+        else
+        {
+            logger.info("YouTube OAuth2 refresh token is not configured; some videos may require login.");
         }
 
         audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         registerSourcePlayers();
+    }
+
+    private String normalizeRefreshToken(String token)
+    {
+        if (token == null)
+        {
+            return null;
+        }
+
+        String normalized = token.trim();
+        if (normalized.isEmpty())
+        {
+            return null;
+        }
+
+        if ((normalized.startsWith("\"") && normalized.endsWith("\""))
+                || (normalized.startsWith("'") && normalized.endsWith("'")))
+        {
+            normalized = normalized.substring(1, normalized.length() - 1).trim();
+        }
+
+        // Access token passed by mistake: lavalink expects refresh token here.
+        if (normalized.regionMatches(true, 0, "Bearer ", 0, 7))
+        {
+            logger.warn("YOUTUBE_REFRESH_TOKEN looks like an access token (Bearer ...). Provide a refresh token instead.");
+            return null;
+        }
+
+        return normalized.isEmpty() ? null : normalized;
     }
 
     private void registerSourcePlayers()
