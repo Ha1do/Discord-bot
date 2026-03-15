@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlayerManager
@@ -34,7 +35,26 @@ public class PlayerManager
     {
         NOTHING_PLAYING,
         SKIPPED_TO_NEXT,
-        STOPPED
+        STOPPED,
+        CLEARED_ALL
+    }
+
+    public enum PauseResult
+    {
+        NOTHING_PLAYING,
+        ALREADY_PAUSED,
+        PAUSED
+    }
+
+    public enum ResumeResult
+    {
+        NOTHING_PLAYING,
+        NOT_PAUSED,
+        RESUMED
+    }
+
+    public record QueueView(AudioTrack currentTrack, List<AudioTrack> upcomingTracks, int totalQueueSize)
+    {
     }
 
     private static PlayerManager INSTANCE;
@@ -161,16 +181,82 @@ public class PlayerManager
         sourcePlayer.play(audioPlayerManager, guildMusicManager, resolvedTrack, event);
     }
 
-    public SkipResult skip(Guild guild)
+    public SkipResult skip(Guild guild, boolean skipAll)
     {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        TrackScheduler scheduler = guildMusicManager.getScheduler();
 
-        if (guildMusicManager.getScheduler().getPlayer().getPlayingTrack() == null)
+        if (skipAll)
+        {
+            return scheduler.skipAllTracks() ? SkipResult.CLEARED_ALL : SkipResult.NOTHING_PLAYING;
+        }
+
+        if (scheduler.getPlayer().getPlayingTrack() == null)
         {
             return SkipResult.NOTHING_PLAYING;
         }
 
-        AudioTrack nextTrack = guildMusicManager.getScheduler().skipCurrentTrack();
+        AudioTrack nextTrack = scheduler.skipCurrentTrack();
         return nextTrack == null ? SkipResult.STOPPED : SkipResult.SKIPPED_TO_NEXT;
+    }
+
+    public PauseResult pause(Guild guild)
+    {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        TrackScheduler scheduler = guildMusicManager.getScheduler();
+
+        if (scheduler.getPlayer().getPlayingTrack() == null)
+        {
+            return PauseResult.NOTHING_PLAYING;
+        }
+
+        if (scheduler.getPlayer().isPaused())
+        {
+            return PauseResult.ALREADY_PAUSED;
+        }
+
+        scheduler.getPlayer().setPaused(true);
+        return PauseResult.PAUSED;
+    }
+
+    public ResumeResult resume(Guild guild)
+    {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        TrackScheduler scheduler = guildMusicManager.getScheduler();
+
+        if (scheduler.getPlayer().getPlayingTrack() == null)
+        {
+            return ResumeResult.NOTHING_PLAYING;
+        }
+
+        if (!scheduler.getPlayer().isPaused())
+        {
+            return ResumeResult.NOT_PAUSED;
+        }
+
+        scheduler.getPlayer().setPaused(false);
+        return ResumeResult.RESUMED;
+    }
+
+    public TrackScheduler.LoopMode setLoopMode(Guild guild, TrackScheduler.LoopMode mode)
+    {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        guildMusicManager.getScheduler().setLoopMode(mode);
+        return guildMusicManager.getScheduler().getLoopMode();
+    }
+
+    public TrackScheduler.LoopMode getLoopMode(Guild guild)
+    {
+        return getGuildMusicManager(guild).getScheduler().getLoopMode();
+    }
+
+    public QueueView getQueueView(Guild guild, int maxItems)
+    {
+        TrackScheduler scheduler = getGuildMusicManager(guild).getScheduler();
+        return new QueueView(
+                scheduler.getPlayer().getPlayingTrack(),
+                scheduler.getQueueSnapshot(maxItems),
+                scheduler.getQueueSize()
+        );
     }
 }

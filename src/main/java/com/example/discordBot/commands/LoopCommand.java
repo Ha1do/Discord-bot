@@ -1,24 +1,25 @@
 package com.example.discordBot.commands;
 
 import com.example.discordBot.LavaPlayer.PlayerManager;
+import com.example.discordBot.LavaPlayer.TrackScheduler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class SkipCommand implements Command
+public class LoopCommand implements Command
 {
     @Override
     public String getName()
     {
-        return "skip";
+        return "loop";
     }
 
     @Override
     public String getDescription()
     {
-        return "Skips the current track or clears the whole queue";
+        return "Sets loop mode: off, track or queue";
     }
 
     @Override
@@ -53,18 +54,38 @@ public class SkipCommand implements Command
             return;
         }
 
-        OptionMapping allOption = event.getOption("all");
-        boolean skipAll = allOption != null && allOption.getAsBoolean();
-
-        PlayerManager.SkipResult result = PlayerManager.get().skip(guild, skipAll);
-
-        switch (result)
+        OptionMapping modeOption = event.getOption("mode");
+        if (modeOption == null)
         {
-            case NOTHING_PLAYING -> event.reply("There is no track playing right now.").setEphemeral(true).queue();
-            case SKIPPED_TO_NEXT -> event.reply("Skipped. Playing next track from the queue.").queue();
-            case STOPPED -> event.reply("Skipped. Queue is empty, playback stopped.").queue();
-            case CLEARED_ALL -> event.reply("Stopped playback and cleared the whole queue.").queue();
+            event.reply("Please provide loop mode: off, track or queue.").setEphemeral(true).queue();
+            return;
         }
+
+        TrackScheduler.LoopMode mode = parseMode(modeOption.getAsString());
+        if (mode == null)
+        {
+            event.reply("Unknown mode. Use one of: off, track, queue.").setEphemeral(true).queue();
+            return;
+        }
+
+        TrackScheduler.LoopMode activeMode = PlayerManager.get().setLoopMode(guild, mode);
+        event.reply("Loop mode set to: **" + activeMode.name().toLowerCase() + "**").queue();
+    }
+
+    private TrackScheduler.LoopMode parseMode(String value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
+
+        return switch (value.toLowerCase())
+        {
+            case "off" -> TrackScheduler.LoopMode.OFF;
+            case "track" -> TrackScheduler.LoopMode.TRACK;
+            case "queue" -> TrackScheduler.LoopMode.QUEUE;
+            default -> null;
+        };
     }
 }
 

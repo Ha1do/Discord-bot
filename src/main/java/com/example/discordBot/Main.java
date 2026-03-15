@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
@@ -75,7 +76,18 @@ public class Main {
                 Commands.slash("info", "Replies with bot information!"),
                 Commands.slash("play", "Plays a song from YouTube!")
                         .addOption(OptionType.STRING, "url", "YouTube URL of the song to play", true),
-                Commands.slash("skip", "Skips the current track")
+                Commands.slash("skip", "Skips current track or clears queue")
+                        .addOption(OptionType.BOOLEAN, "all", "Set true to stop and clear all queued tracks", false),
+                Commands.slash("pause", "Pauses current playback"),
+                Commands.slash("resume", "Resumes paused playback"),
+                Commands.slash("loop", "Sets loop mode")
+                        .addOptions(
+                                new OptionData(OptionType.STRING, "mode", "off, track, or queue", true)
+                                        .addChoice("off", "off")
+                                        .addChoice("track", "track")
+                                        .addChoice("queue", "queue")
+                        ),
+                Commands.slash("list", "Shows current track and queue")
 
         ).queue(
                 success -> logger.info("Slash commands registered successfully!"),

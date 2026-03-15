@@ -5,20 +5,19 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class SkipCommand implements Command
+public class ResumeCommand implements Command
 {
     @Override
     public String getName()
     {
-        return "skip";
+        return "resume";
     }
 
     @Override
     public String getDescription()
     {
-        return "Skips the current track or clears the whole queue";
+        return "Resumes paused playback";
     }
 
     @Override
@@ -53,17 +52,13 @@ public class SkipCommand implements Command
             return;
         }
 
-        OptionMapping allOption = event.getOption("all");
-        boolean skipAll = allOption != null && allOption.getAsBoolean();
-
-        PlayerManager.SkipResult result = PlayerManager.get().skip(guild, skipAll);
+        PlayerManager.ResumeResult result = PlayerManager.get().resume(guild);
 
         switch (result)
         {
             case NOTHING_PLAYING -> event.reply("There is no track playing right now.").setEphemeral(true).queue();
-            case SKIPPED_TO_NEXT -> event.reply("Skipped. Playing next track from the queue.").queue();
-            case STOPPED -> event.reply("Skipped. Queue is empty, playback stopped.").queue();
-            case CLEARED_ALL -> event.reply("Stopped playback and cleared the whole queue.").queue();
+            case NOT_PAUSED -> event.reply("Playback is not paused.").setEphemeral(true).queue();
+            case RESUMED -> event.reply("Playback resumed.").queue();
         }
     }
 }
