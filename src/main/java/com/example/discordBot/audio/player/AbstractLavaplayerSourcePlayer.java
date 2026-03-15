@@ -66,7 +66,14 @@ abstract class AbstractLavaplayerSourcePlayer implements SourcePlayer
             @Override
             public void loadFailed(FriendlyException e)
             {
-                event.getHook().sendMessage("❌ Failed to load track: " + e.getMessage()).queue();
+                String message = e.getMessage();
+                if (message != null && message.toLowerCase().contains("requires login"))
+                {
+                    event.getHook().sendMessage("❌ YouTube blocked this track for anonymous playback. Configure YOUTUBE_REFRESH_TOKEN in ENV or try another track.").queue();
+                    return;
+                }
+
+                event.getHook().sendMessage("❌ Failed to load track: " + message).queue();
             }
         });
     }
