@@ -6,6 +6,8 @@ public enum SourceType
     SOUNDCLOUD,
     SPOTIFY,
     APPLE_MUSIC,
+    YANDEX_MUSIC,
+    VK_MUSIC,
     YOUTUBE_MUSIC,
     SEARCH,
     UNKNOWN

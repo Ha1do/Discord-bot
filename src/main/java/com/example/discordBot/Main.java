@@ -74,8 +74,8 @@ public class Main {
                 Commands.slash("echo", "Replies with your message!")
                         .addOption(OptionType.STRING, "text", "Message to echo", true),
                 Commands.slash("info", "Replies with bot information!"),
-                Commands.slash("play", "Plays a song from YouTube!")
-                        .addOption(OptionType.STRING, "url", "YouTube URL of the song to play", true),
+                Commands.slash("play", "Plays a song from")
+                        .addOption(OptionType.STRING, "url", "Link or search text (YouTube, SoundCloud, Spotify, Apple, Yandex, VK)", true),
                 Commands.slash("skip", "Skips current track or clears queue")
                         .addOption(OptionType.BOOLEAN, "all", "Set true to stop and clear all queued tracks", false),
                 Commands.slash("pause", "Pauses current playback"),

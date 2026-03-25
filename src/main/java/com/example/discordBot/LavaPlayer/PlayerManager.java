@@ -2,6 +2,7 @@ package com.example.discordBot.LavaPlayer;
 
 import com.example.discordBot.audio.ResolvedTrack;
 import com.example.discordBot.audio.SourceType;
+import com.example.discordBot.audio.player.ExternalFallbackSourcePlayer;
 import com.example.discordBot.audio.player.SearchSourcePlayer;
 import com.example.discordBot.audio.player.SoundCloudSourcePlayer;
 import com.example.discordBot.audio.player.SourcePlayer;
@@ -138,10 +139,15 @@ public class PlayerManager
     private void registerSourcePlayers()
     {
         SourcePlayer youtubePlayer = new YouTubeSourcePlayer();
+        SourcePlayer externalFallbackPlayer = new ExternalFallbackSourcePlayer();
         sourcePlayers.put(SourceType.YOUTUBE, youtubePlayer);
         sourcePlayers.put(SourceType.YOUTUBE_MUSIC, youtubePlayer);
         sourcePlayers.put(SourceType.SOUNDCLOUD, new SoundCloudSourcePlayer());
         sourcePlayers.put(SourceType.SEARCH, new SearchSourcePlayer());
+        sourcePlayers.put(SourceType.SPOTIFY, externalFallbackPlayer);
+        sourcePlayers.put(SourceType.APPLE_MUSIC, externalFallbackPlayer);
+        sourcePlayers.put(SourceType.YANDEX_MUSIC, externalFallbackPlayer);
+        sourcePlayers.put(SourceType.VK_MUSIC, externalFallbackPlayer);
     }
 
     public static PlayerManager get()

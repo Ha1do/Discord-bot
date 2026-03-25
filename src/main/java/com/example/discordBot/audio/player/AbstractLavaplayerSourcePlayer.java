@@ -43,7 +43,7 @@ abstract class AbstractLavaplayerSourcePlayer implements SourcePlayer
                     return;
                 }
 
-                if (trackQuery.startsWith("ytsearch:"))
+                if (isSearchIdentifier(trackQuery))
                 {
                     AudioTrack firstTrack = audioPlaylist.getTracks().get(0);
                     guildMusicManager.getScheduler().queue(firstTrack);
@@ -81,6 +81,11 @@ abstract class AbstractLavaplayerSourcePlayer implements SourcePlayer
     protected String prepareTrackQuery(ResolvedTrack resolvedTrack)
     {
         return resolvedTrack.getTrackQuery();
+    }
+
+    private boolean isSearchIdentifier(String trackQuery)
+    {
+        return trackQuery.startsWith("ytsearch:") || trackQuery.startsWith("scsearch:");
     }
 }
 

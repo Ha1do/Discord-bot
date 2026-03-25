@@ -4,7 +4,6 @@ import com.example.discordBot.LavaPlayer.PlayerManager;
 import com.example.discordBot.audio.ResolvedTrack;
 import com.example.discordBot.audio.SourceResolver;
 import com.example.discordBot.audio.SourceType;
-import com.example.discordBot.audio.TrackQueryRouter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -56,15 +55,15 @@ public class PlayCommand implements Command
         }
 
         SourceType sourceType = SourceResolver.resolve(input);
-        ResolvedTrack resolvedTrack = TrackQueryRouter.resolve(input, sourceType);
-
-        if (resolvedTrack == null)
+        if (sourceType == SourceType.UNKNOWN)
         {
-            event.reply("❌ Unsupported link. Supported sources: YouTube, SoundCloud, Spotify, Apple Music, YouTube Music, or plain search text.")
+            event.reply("❌ Unsupported link. Supported: YouTube, SoundCloud, Spotify/Apple/Yandex/VK (via SoundCloud fallback), YouTube Music, or plain search text.")
                     .setEphemeral(true)
                     .queue();
             return;
         }
+
+        ResolvedTrack resolvedTrack = new ResolvedTrack(input, sourceType);
 
         Member member = event.getMember();
         if (member == null)

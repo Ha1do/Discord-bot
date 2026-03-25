@@ -27,6 +27,11 @@ public class SourceResolver
 
             host = host.toLowerCase();
 
+            if (host.contains("music.youtube.com"))
+            {
+                return SourceType.YOUTUBE_MUSIC;
+            }
+
             if (host.contains("youtube.com") || host.contains("youtu.be"))
             {
                 return SourceType.YOUTUBE;
@@ -47,9 +52,14 @@ public class SourceResolver
                 return SourceType.APPLE_MUSIC;
             }
 
-            if (host.contains("music.youtube.com"))
+            if (host.contains("music.yandex.") || host.contains("yandexmusic."))
             {
-                return SourceType.YOUTUBE_MUSIC;
+                return SourceType.YANDEX_MUSIC;
+            }
+
+            if (host.contains("vk.com") || host.contains("vk.ru"))
+            {
+                return SourceType.VK_MUSIC;
             }
 
             return SourceType.UNKNOWN;
